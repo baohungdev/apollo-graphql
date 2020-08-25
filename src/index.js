@@ -12,7 +12,8 @@ import App from './App'
 import { ApolloProvider } from 'react-apollo'
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { ApolloClient, gql } from 'apollo-boost'
+import { ApolloClient } from 'apollo-boost'
+import { typeDefs, resolvers } from './graphql/resolvers'
 
 const httpLink = createHttpLink({
    uri: 'https://crwn-clothing.com',
@@ -23,23 +24,14 @@ const cache = new InMemoryCache()
 const client = new ApolloClient({
    cache,
    link: httpLink,
+   typeDefs,
+   resolvers,
 })
 
-client.query({
-   query: gql`
-      {
-         collections {
-            id
-            title
-            items {
-               id
-               name
-               price
-               imageUrl
-            }
-         }
-      }
-   `,
+client.writeData({
+   data: {
+      cartHidden: true,
+   },
 })
 ReactDOM.render(
    <ApolloProvider client={client}>
