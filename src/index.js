@@ -25,25 +25,22 @@ const client = new ApolloClient({
     link: httpLink,
 })
 
-client
-    .query({
-        query: gql`
-            {
-                collections {
+client.query({
+    query: gql`
+        {
+            collections {
+                id
+                title
+                items {
                     id
-                    title
-                    items {
-                        id
-                        name
-                        price
-                        imageUrl
-                    }
+                    name
+                    price
+                    imageUrl
                 }
             }
-        `,
-    })
-    .then((res) => console.log(res))
-
+        }
+    `,
+})
 ReactDOM.render(
     <ApolloProvider client={client}>
         <Provider store={store}>
