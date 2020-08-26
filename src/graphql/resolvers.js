@@ -1,32 +1,11 @@
 import { gql } from 'apollo-boost'
-import { addItemToCart, getCartItemCount } from './cart.utils'
-
-export const typeDefs = gql`
-   extend type Item {
-      quantity: Int
-   }
-   extend type Mutation {
-      ToggleCartHidden: Boolean!
-      AddItemToCart(item: Item!): [Item]!
-   }
-`
-export const GET_CART_HIDDEN = gql`
-   {
-      cartHidden @client
-   }
-`
-
-export const GET_ITEM_COUNT = gql`
-   {
-      itemCount @client
-   }
-`
-
-export const GET_CART_ITEMS = gql`
-   {
-      cartItems @client
-   }
-`
+import {
+   addItemToCart,
+   getCartItemCount,
+   getCartTotal,
+   removeItemFromCart,
+   clearItemFromCart,
+} from './cart.utils'
 
 export const resolvers = {
    Mutation: {
@@ -52,21 +31,70 @@ export const resolvers = {
 
          const newCartItems = addItemToCart(cartItems, item)
 
-         cache.writeQuery({
-            query: GET_ITEM_COUNT,
-            data: {
-               itemCount: getCartItemCount(newCartItems),
-            },
+         updateCartItemsRelatedQueries(cache, newCartItems)
+
+         return newCartItems
+      },
+      removeItemFromCart: (_root, { item }, { cache }) => {
+         const { cartItems } = cache.readQuery({
+            query: GET_CART_ITEMS,
          })
 
-         cache.writeQuery({
+         const newCartItems = removeItemFromCart(cartItems, item)
+
+         updateCartItemsRelatedQueries(cache, newCartItems)
+
+         return newCartItems
+      },
+      clearItemFromCart: (_root, { item }, { cache }) => {
+         const { cartItems } = cache.readQuery({
             query: GET_CART_ITEMS,
-            data: {
-               cartItems: newCartItems,
-            },
          })
+
+         const newCartItems = clearItemFromCart(cartItems, item)
+
+         updateCartItemsRelatedQueries(cache, newCartItems)
 
          return newCartItems
       },
    },
+}
+
+export const GET_CART_HIDDEN = gql`
+   {
+      cartHidden @client
+   }
+`
+
+export const GET_ITEM_COUNT = gql`
+   {
+      itemCount @client
+   }
+`
+
+export const GET_CART_ITEMS = gql`
+   {
+      cartItems @client
+   }
+`
+
+export const GET_CART_TOTAL = gql`
+   {
+      cartTotal @client
+   }
+`
+
+const updateCartItemsRelatedQueries = (cache, newCartItems) => {
+   cache.writeQuery({
+      query: GET_ITEM_COUNT,
+      data: { itemCount: getCartItemCount(newCartItems) },
+   })
+   cache.writeQuery({
+      query: GET_CART_TOTAL,
+      data: { cartTotal: getCartTotal(newCartItems) },
+   })
+   cache.writeQuery({
+      query: GET_CART_ITEMS,
+      data: { cartItems: newCartItems },
+   })
 }

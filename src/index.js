@@ -13,7 +13,8 @@ import { ApolloProvider } from 'react-apollo'
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloClient } from 'apollo-boost'
-import { typeDefs, resolvers } from './graphql/resolvers'
+import { resolvers } from './graphql/resolvers'
+import { typeDefs } from './graphql/typeDefs'
 
 const httpLink = createHttpLink({
    uri: 'https://crwn-clothing.com',
@@ -33,6 +34,7 @@ client.writeData({
       cartHidden: true,
       cartItems: [],
       itemCount: 0,
+      cartTotal: 0,
    },
 })
 ReactDOM.render(
