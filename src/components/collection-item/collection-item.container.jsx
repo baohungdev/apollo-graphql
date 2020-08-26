@@ -1,7 +1,8 @@
 import React from 'react'
-import { Mutation } from 'react-apollo'
+import { graphql } from 'react-apollo'
 import CollectionItem from './collection-item.component'
 import { gql } from 'apollo-boost'
+import { flowRight as compose } from 'lodash'
 
 const ADD_ITEM_TO_CART = gql`
    mutation AddItemToCart($item: Item!) {
@@ -9,15 +10,16 @@ const ADD_ITEM_TO_CART = gql`
    }
 `
 
-const CollectionItemContainer = (props) => (
-   <Mutation mutation={ADD_ITEM_TO_CART}>
-      {(addItemToCart) => (
-         <CollectionItem
-            {...props}
-            addItem={(item) => addItemToCart({ variables: { item } })}
-         />
-      )}
-   </Mutation>
-)
+const CollectionItemContainer = (props) => {
+   const { addItemToCart } = props
+   return (
+      <CollectionItem
+         {...props}
+         addItem={(item) => addItemToCart({ variables: { item } })}
+      />
+   )
+}
 
-export default CollectionItemContainer
+export default compose(graphql(ADD_ITEM_TO_CART, { name: 'addItemToCart' }))(
+   CollectionItemContainer
+)

@@ -1,7 +1,8 @@
 import React from 'react'
-import { Query, Mutation } from 'react-apollo'
+import { graphql } from 'react-apollo'
 import { gql } from 'apollo-boost'
 import CartDropdown from './cart-dropdown.component'
+import { flowRight as compose } from 'lodash'
 
 export const GET_CART_ITEMS = gql`
    {
@@ -15,19 +16,11 @@ const TOGGLE_CART_HIDDEN = gql`
    }
 `
 
-const CartDropDownContainer = () => (
-   <Mutation mutation={TOGGLE_CART_HIDDEN}>
-      {(toggleCartHidden) => (
-         <Query query={GET_CART_ITEMS}>
-            {({ data: { cartItems } }) => (
-               <CartDropdown
-                  cartItems={cartItems}
-                  toggleCartHidden={toggleCartHidden}
-               />
-            )}
-         </Query>
-      )}
-   </Mutation>
+const CartDropDownContainer = ({ data: { cartItems }, toggleCartHidden }) => (
+   <CartDropdown cartItems={cartItems} toggleCartHidden={toggleCartHidden} />
 )
 
-export default CartDropDownContainer
+export default compose(
+   graphql(TOGGLE_CART_HIDDEN, { name: 'toggleCartHidden' }),
+   graphql(GET_CART_ITEMS)
+)(CartDropDownContainer)

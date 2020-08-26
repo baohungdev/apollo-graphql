@@ -1,19 +1,17 @@
 import React from 'react'
 import { gql } from 'apollo-boost'
-import { Query } from 'react-apollo'
+import { graphql } from 'react-apollo'
 import Header from './header.component'
+import { flowRight as compose } from 'lodash'
+
 const GET_CART_HIDDEN = gql`
    {
       cartHidden @client
    }
 `
 
-const HeaderContainer = () => (
-   <Query query={GET_CART_HIDDEN}>
-      {({ data: { cartHidden } }) => {
-         return <Header hidden={cartHidden} />
-      }}
-   </Query>
+const HeaderContainer = ({ data: { cartHidden } }) => (
+   <Header hidden={cartHidden} />
 )
 
-export default HeaderContainer
+export default compose(graphql(GET_CART_HIDDEN))(HeaderContainer)
